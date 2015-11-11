@@ -41,6 +41,7 @@ import ch.fhnw.sna.examples.dbpedia.model.AuthorGraph;
  * Fetches the Music Artist Association Network from dbpedia
  * 
  */
+// Hier werden die eigentlichen Abfragen gemacht
 public class AuthorFetcher {
 
 	private static final String DBPEDIA_SPARQL_ENDPOINT = "http://dbpedia.org/sparql";
@@ -62,20 +63,30 @@ public class AuthorFetcher {
 	private void fetchAssociations(AuthorGraph graph) {
 		final int LIMIT = Integer.MAX_VALUE; // Means no limit
 		boolean hasMoreResults = true;
+		//Was ist das?
 		int currentOffset = 0;
 		int fetchedTotal = 0;
 		while (hasMoreResults && fetchedTotal < LIMIT) {
+			//Hier schon eine Query-Anpassung für unser Autorenprojekt
 			String queryString = "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n"
-					+ "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> \n"
-					+ "PREFIX dbpedia-owl: <http://dbpedia.org/ontology/> \n" +
+					 + "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> \n"
+					 + "PREFIX dbpedia-owl: <http://dbpedia.org/ontology/> \n" +
+					 "select ?P ?Q where {"+
+					 "?P <http://dbpedia.org/property/influences> ?Q."+
+					 "?P <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://dbpedia.org/class/yago/Scriptwriter110564905>"+
+					 "} LIMIT 1000 OFFSET "+ currentOffset;
 
-			"SELECT ?sourcename ?targetname ?sourceuri ?targeturi \n" + "WHERE { "
-					+ "?sourceuri a <http://dbpedia.org/ontology/MusicalArtist>."
-					+ "?targeturi a dbpedia-owl:MusicalArtist ."
-					+ "?sourceuri dbpedia-owl:associatedMusicalArtist	?targeturi."
-					+ "?sourceuri rdfs:label ?sourcename ." + "?targeturi rdfs:label ?targetname ."
-					+ "FILTER langMatches( lang(?sourcename), \"en\" ) . \n"
-					+ "FILTER langMatches( lang(?targetname), \"en\" )" + "} LIMIT 1000 OFFSET " + currentOffset;
+//			String queryString = "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n"
+//					+ "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> \n"
+//					+ "PREFIX dbpedia-owl: <http://dbpedia.org/ontology/> \n" +
+//
+//			"SELECT ?sourcename ?targetname ?sourceuri ?targeturi \n" + "WHERE { "
+//					+ "?sourceuri a <http://dbpedia.org/ontology/MusicalArtist>."
+//					+ "?targeturi a dbpedia-owl:MusicalArtist ."
+//					+ "?sourceuri dbpedia-owl:associatedMusicalArtist	?targeturi."
+//					+ "?sourceuri rdfs:label ?sourcename ." + "?targeturi rdfs:label ?targetname ."
+//					+ "FILTER langMatches( lang(?sourcename), \"en\" ) . \n"
+//					+ "FILTER langMatches( lang(?targetname), \"en\" )" + "} LIMIT 1000 OFFSET " + currentOffset;
 
 			LOG.debug("Querying: {}", queryString);
 
@@ -86,14 +97,23 @@ public class AuthorFetcher {
 
 				while (results.hasNext()) {
 					++resultCounter;
+					try{
 					QuerySolution sol = results.next();
-					String fromUri = sol.getResource("sourceuri").getURI();
-					String toUri = sol.getResource("targeturi").getURI();
-					String from = sol.getLiteral("sourcename").getLexicalForm();
-					String to = sol.getLiteral("targetname").getLexicalForm();
-					graph.addArtistIfNotExists(fromUri, from);
-					graph.addArtistIfNotExists(toUri, to);
+//					String fromUri = sol.getResource("sourceuri").getURI();
+					String fromUri = sol.getResource("P").getURI();
+
+//					String toUri = sol.getResource("targeturi").getURI();
+					String toUri = sol.getResource("Q").getURI();
+//					String from = sol.getLiteral("sourcename").getLexicalForm();
+//					String to = sol.getLiteral("targetname").getLexicalForm();
+//					graph.addArtistIfNotExists(fromUri, from);
+//					graph.addArtistIfNotExists(toUri, to);
+					graph.addArtistIfNotExists(fromUri, fromUri);
+					graph.addArtistIfNotExists(toUri, toUri);
 					graph.addAssociation(fromUri, toUri);
+					}catch(Exception e){
+						LOG.error("Fehler beim sammeln...", e);
+					}
 				}
 			}
 			LOG.debug("Fetches {} new results.", resultCounter);
