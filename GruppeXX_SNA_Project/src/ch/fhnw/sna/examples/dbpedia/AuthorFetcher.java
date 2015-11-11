@@ -55,7 +55,7 @@ public class AuthorFetcher {
 		fetchAssociations(graph);
 		LOG.info("Fiinished fetching Music Artist Network");
 		LOG.info("Start fetching node attributs");
-		enrichNodeInformation(graph);
+		//enrichNodeInformation(graph);
 		LOG.info("Finished fetching node attributes");
 		return graph;
 	}
