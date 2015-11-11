@@ -34,22 +34,22 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Sets;
 
-import ch.fhnw.sna.examples.dbpedia.model.MusicArtist;
-import ch.fhnw.sna.examples.dbpedia.model.MusicArtistGraph;
+import ch.fhnw.sna.examples.dbpedia.model.Author;
+import ch.fhnw.sna.examples.dbpedia.model.AuthorGraph;
 
 /**
  * Fetches the Music Artist Association Network from dbpedia
  * 
  */
-public class MusicArtistFetcher {
+public class AuthorFetcher {
 
 	private static final String DBPEDIA_SPARQL_ENDPOINT = "http://dbpedia.org/sparql";
 	private static final DateTimeFormatter ACTIVE_YEAR_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
-	private static final Logger LOG = LoggerFactory.getLogger(MusicArtistFetcher.class);
+	private static final Logger LOG = LoggerFactory.getLogger(AuthorFetcher.class);
 
-	public MusicArtistGraph fetch() {
-		MusicArtistGraph graph = new MusicArtistGraph();
+	public AuthorGraph fetch() {
+		AuthorGraph graph = new AuthorGraph();
 		LOG.info("Start fetching Music Artist Network");
 		fetchAssociations(graph);
 		LOG.info("Fiinished fetching Music Artist Network");
@@ -59,7 +59,7 @@ public class MusicArtistFetcher {
 		return graph;
 	}
 
-	private void fetchAssociations(MusicArtistGraph graph) {
+	private void fetchAssociations(AuthorGraph graph) {
 		final int LIMIT = Integer.MAX_VALUE; // Means no limit
 		boolean hasMoreResults = true;
 		int currentOffset = 0;
@@ -105,13 +105,13 @@ public class MusicArtistFetcher {
 		}
 	}
 
-	private void enrichNodeInformation(MusicArtistGraph graph) {
-		for (MusicArtist a : graph.getArtists()){
+	private void enrichNodeInformation(AuthorGraph graph) {
+		for (Author a : graph.getArtists()){
 			enrichSingleArtist(a);
 		}
 	}
 
-	private void enrichSingleArtist(MusicArtist artist) {
+	private void enrichSingleArtist(Author artist) {
 		LOG.info("Enrich artist {}", artist.getLabel());
 		String queryString = buildActorQuery(artist);
 
@@ -162,7 +162,7 @@ public class MusicArtistFetcher {
 		extractArtistSex(artist, subjects);
 	}
 
-	private void extractBirthdate(MusicArtist artist, Literal birthdate) {
+	private void extractBirthdate(Author artist, Literal birthdate) {
 		try {
 		if (birthdate.getDatatype() instanceof XSDDateType) {
 			XSDDateTime time = (XSDDateTime) birthdate.getValue();
@@ -184,7 +184,7 @@ public class MusicArtistFetcher {
 		}
 	}
 
-	private void extractActiveYears(MusicArtist artist, Literal years) {
+	private void extractActiveYears(Author artist, Literal years) {
 		int year =-1;
 			if (XSDDatatype.XSDgYear.equals(years.getDatatype())){
 				year = Integer.parseInt(years.getValue().toString());
@@ -196,7 +196,7 @@ public class MusicArtistFetcher {
 		}
 	}
 
-	private void extractArtistGenres(MusicArtist artist, Set<String> genres) {
+	private void extractArtistGenres(Author artist, Set<String> genres) {
 		// Main music genres from:
 		// https://en.wikipedia.org/wiki/List_of_popular_music_genres
 
@@ -229,7 +229,7 @@ public class MusicArtistFetcher {
 
 	}
 
-	private void extractArtistSex(MusicArtist artist, Set<String> subjects) {
+	private void extractArtistSex(Author artist, Set<String> subjects) {
 		int maleCounter = 0;
 		int femaleCounter = 0;
 		for (String subject : subjects) {
@@ -249,7 +249,7 @@ public class MusicArtistFetcher {
 		}
 	}
 
-	private String buildActorQuery(MusicArtist artist) {
+	private String buildActorQuery(Author artist) {
 		String artistUri = artist.getUri();
 		String queryString = "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n"
 				+ "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> \n"

@@ -6,7 +6,7 @@ import java.util.Set;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Sets;
 
-public class MusicArtist {
+public class Author {
 
 	private final String uri;
 	private String label;
@@ -16,11 +16,11 @@ public class MusicArtist {
 	private String sex = "unknown";
 	private Set<String> genres = Sets.newHashSet();
 
-	public MusicArtist(String uri) {
+	public Author(String uri) {
 		this.uri = uri;
 	}
 
-	public MusicArtist(String uri, String label) {
+	public Author(String uri, String label) {
 		this(uri);
 		this.label = label;
 	}
@@ -41,7 +41,7 @@ public class MusicArtist {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		MusicArtist other = (MusicArtist) obj;
+		Author other = (Author) obj;
 		if (uri == null) {
 			if (other.uri != null)
 				return false;

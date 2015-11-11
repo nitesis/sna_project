@@ -7,12 +7,12 @@ import java.util.Set;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
-public class MusicArtistGraph {
+public class AuthorGraph {
 
-	private Map<String, MusicArtist> uriToArtist = Maps.newHashMap();
+	private Map<String, Author> uriToArtist = Maps.newHashMap();
 	private Map<String, Set<String>> associations = Maps.newHashMap();
 
-	public void addArtist(MusicArtist artist) {
+	public void addArtist(Author artist) {
 		uriToArtist.put(artist.getUri(), artist);
 	}
 
@@ -33,13 +33,13 @@ public class MusicArtistGraph {
 		return uriToArtist.containsKey(uri);
 	}
 
-	public Collection<MusicArtist> getArtists() {
+	public Collection<Author> getArtists() {
 		return uriToArtist.values();
 	}
 
 	public void addArtistIfNotExists(String uri, String label) {
 		if (!uriToArtist.containsKey(uri)){
-			uriToArtist.put(uri, new MusicArtist(uri, label));
+			uriToArtist.put(uri, new Author(uri, label));
 		}
 		
 	}

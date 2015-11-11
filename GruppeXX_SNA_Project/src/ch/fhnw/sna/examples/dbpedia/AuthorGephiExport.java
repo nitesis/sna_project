@@ -27,15 +27,15 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ch.fhnw.sna.examples.dbpedia.model.MusicArtist;
-import ch.fhnw.sna.examples.dbpedia.model.MusicArtistGraph;
+import ch.fhnw.sna.examples.dbpedia.model.Author;
+import ch.fhnw.sna.examples.dbpedia.model.AuthorGraph;
 
 /**
  * Exports the music artist graph to Gephi
  *
  */
-public class MusicArtistGephiExport {
-	private static final Logger LOG = LoggerFactory.getLogger(MusicArtistGephiExport.class);
+public class AuthorGephiExport {
+	private static final Logger LOG = LoggerFactory.getLogger(AuthorGephiExport.class);
 	private static final String OUTPUT_FOLDER = "output/";
 	
 	private final String OUTPUT_FILE;
@@ -52,11 +52,11 @@ public class MusicArtistGephiExport {
 	Attribute attGenres = attrList.createAttribute(AttributeType.LISTSTRING,
 			"genres");
 
-	public MusicArtistGephiExport(String outputFile) {
+	public AuthorGephiExport(String outputFile) {
 		this.OUTPUT_FILE = outputFile;
 	}
 	
-	public void export(MusicArtistGraph artistGraph) {
+	public void export(AuthorGraph artistGraph) {
 		Gexf gexf = initializeGexf();
 		Graph graph = gexf.getGraph();
 		LOG.info("Creating gephi Graph");
@@ -79,18 +79,18 @@ public class MusicArtistGephiExport {
 		}
 	}
 
-	private void createGraph(Graph graph, MusicArtistGraph artistGraph) {
+	private void createGraph(Graph graph, AuthorGraph artistGraph) {
 		LOG.info("Creating nodes");
 		Map<String, Node> nodeMap = createNodes(artistGraph, graph);
 		LOG.info("Creating edges");
 		createEdges(artistGraph, graph, nodeMap);
 	}
 
-	private Map<String, Node> createNodes(MusicArtistGraph artists, Graph graph) {
+	private Map<String, Node> createNodes(AuthorGraph artists, Graph graph) {
 		Map<String, Node> nodeMap = new HashMap<>(
 				artists.getArtists().size() * 2);
 
-		for (MusicArtist artist : artists.getArtists()) {
+		for (Author artist : artists.getArtists()) {
 			if (!nodeMap.containsKey(artist.getUri())) {
 				nodeMap.put(artist.getUri(), createSingleNode(graph, artist));
 			}
@@ -99,7 +99,7 @@ public class MusicArtistGephiExport {
 		return nodeMap;
 	}
 
-	private Node createSingleNode(Graph graph, MusicArtist artist) {
+	private Node createSingleNode(Graph graph, Author artist) {
 		Node node = graph.createNode(artist.getUri()).setLabel(artist.getLabel());
 		node.getAttributeValues().addValue(attSex, artist.getSex());
 		if (artist.getActiveYears() != 0) {
@@ -117,7 +117,7 @@ public class MusicArtistGephiExport {
 	}
 
 	
-	private void createEdges(MusicArtistGraph artistGraph, Graph graph,
+	private void createEdges(AuthorGraph artistGraph, Graph graph,
 			Map<String, Node> nodeMap) {
 		for (Map.Entry<String, Set<String>> from : artistGraph.getAssociations()
 				.entrySet()) {
