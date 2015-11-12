@@ -13,6 +13,6 @@ hs_err_pid*
 
 .metadata/*
 
-Gruppe06_SNA_Project/.classpath
+*.classpath
 
 */bin
