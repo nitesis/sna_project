@@ -1,15 +1,15 @@
 package ch.fhnw.sna.examples.dbpedia;
 
-import static ch.fhnw.sna.util.GenreDetectionUtil.isBlues;
-import static ch.fhnw.sna.util.GenreDetectionUtil.isCountry;
-import static ch.fhnw.sna.util.GenreDetectionUtil.isElectronic;
-import static ch.fhnw.sna.util.GenreDetectionUtil.isFolk;
-import static ch.fhnw.sna.util.GenreDetectionUtil.isHipHop;
-import static ch.fhnw.sna.util.GenreDetectionUtil.isJazz;
-import static ch.fhnw.sna.util.GenreDetectionUtil.isLatin;
-import static ch.fhnw.sna.util.GenreDetectionUtil.isPop;
-import static ch.fhnw.sna.util.GenreDetectionUtil.isRock;
-import static ch.fhnw.sna.util.GenreDetectionUtil.isSoul;
+//import static ch.fhnw.sna.util.GenreDetectionUtil.isBlues;
+//import static ch.fhnw.sna.util.GenreDetectionUtil.isCountry;
+//import static ch.fhnw.sna.util.GenreDetectionUtil.isElectronic;
+//import static ch.fhnw.sna.util.GenreDetectionUtil.isFolk;
+//import static ch.fhnw.sna.util.GenreDetectionUtil.isHipHop;
+//import static ch.fhnw.sna.util.GenreDetectionUtil.isJazz;
+//import static ch.fhnw.sna.util.GenreDetectionUtil.isLatin;
+//import static ch.fhnw.sna.util.GenreDetectionUtil.isPop;
+//import static ch.fhnw.sna.util.GenreDetectionUtil.isRock;
+//import static ch.fhnw.sna.util.GenreDetectionUtil.isSoul;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
