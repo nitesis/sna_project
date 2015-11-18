@@ -3,7 +3,7 @@ package ch.fhnw.sna.examples.dbpedia;
 import ch.fhnw.sna.examples.dbpedia.model.AuthorGraph;
 
 /**
- * Main class for Music artist fetcher
+ * Main class for Author fetcher
  *
  */
 public class AuthorFetcher_Main {
