@@ -46,6 +46,7 @@ public class AuthorGephiExport {
 	Attribute attActiveYears = attrList.createAttribute(AttributeType.INTEGER,
 			"active_years");
 	Attribute attAge = attrList.createAttribute(AttributeType.INTEGER, "age");
+	Attribute attDeath = attrList.createAttribute(AttributeType.INTEGER, "deathyear");
 	Attribute attFilmActor = attrList.createAttribute(AttributeType.BOOLEAN,
 			"isFilmActor");
 	Attribute attSex = attrList.createAttribute(AttributeType.STRING, "sex");
@@ -99,20 +100,25 @@ public class AuthorGephiExport {
 		return nodeMap;
 	}
 
-	private Node createSingleNode(Graph graph, Author artist) {
-		Node node = graph.createNode(artist.getUri()).setLabel(artist.getLabel());
-		node.getAttributeValues().addValue(attSex, artist.getSex());
-		if (artist.getActiveYears() != 0) {
+	private Node createSingleNode(Graph graph, Author author) {
+		Node node = graph.createNode(author.getUri()).setLabel(author.getLabel());
+		node.getAttributeValues().addValue(attSex, author.getSex());
+		if (author.getActiveYears() != 0) {
 			node.getAttributeValues().addValue(attActiveYears,
-					String.valueOf(artist.getActiveYears()));
+					String.valueOf(author.getActiveYears()));
 		}
-		if (artist.getBirthDate() != null) {
+		if (author.getBirthDate() != null) {
 			node.getAttributeValues().addValue(attAge,
-					String.valueOf(LocalDate.now().getYear() - artist.getBirthDate().getYear()));
+					String.valueOf(LocalDate.now().getYear() - author.getBirthDate().getYear()));
 		}
+		
+		if (author.getDeathDate() != null) {
+			node.getAttributeValues().addValue(attDeath, String.valueOf(author.getDeathDate().getYear()));
+		}
+		
 		node.getAttributeValues().addValue(attFilmActor,
-				String.valueOf(artist.isFilmActor()));
-		node.getAttributeValues().addValue(attGenres, artist.getGenres());
+				String.valueOf(author.isFilmActor()));
+		node.getAttributeValues().addValue(attGenres, author.getGenres());
 		return node;
 	}
 

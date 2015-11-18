@@ -15,6 +15,7 @@ public class Author {
 	private boolean isFilmActor = false;
 	private String sex = "unknown";
 	private Set<String> genres = Sets.newHashSet();
+	private LocalDate deathDate;
 
 	public Author(String uri) {
 		this.uri = uri;
@@ -101,6 +102,14 @@ public class Author {
 
 	public String getLabel() {
 		return label;
+	}
+
+	public void setDeathDate(LocalDate deathDate) {
+		this.deathDate= deathDate;
+	}
+	
+	public LocalDate getDeathDate(){
+		return deathDate;
 	}
 
 }

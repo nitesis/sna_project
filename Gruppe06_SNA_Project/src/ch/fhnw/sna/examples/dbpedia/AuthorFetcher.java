@@ -17,6 +17,7 @@ import java.time.format.DateTimeParseException;
 import java.util.Iterator;
 import java.util.Set;
 
+import org.apache.jena.datatypes.DatatypeFormatException;
 import org.apache.jena.datatypes.xsd.XSDDatatype;
 import org.apache.jena.datatypes.xsd.XSDDateTime;
 import org.apache.jena.datatypes.xsd.impl.XSDDateType;
@@ -55,7 +56,7 @@ public class AuthorFetcher {
 		fetchAssociations(graph);
 		LOG.info("Fiinished fetching Music Artist Network");
 		LOG.info("Start fetching node attributs");
-		//enrichNodeInformation(graph);
+		enrichNodeInformation(graph);
 		LOG.info("Finished fetching node attributes");
 		return graph;
 	}
@@ -68,13 +69,14 @@ public class AuthorFetcher {
 		int fetchedTotal = 0;
 		while (hasMoreResults && fetchedTotal < LIMIT) {
 			//Hier schon eine Query-Anpassung für unser Autorenprojekt
-			String queryString = "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n"
+			String influenceQuery = "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n"
 					 + "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> \n"
 					 + "PREFIX dbpedia-owl: <http://dbpedia.org/ontology/> \n" +
 					 "select ?P ?Q where {"+
 					 "?P <http://dbpedia.org/property/influences> ?Q."+
 					 "?P <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://dbpedia.org/class/yago/Scriptwriter110564905>"+
 					 "} LIMIT 1000 OFFSET "+ currentOffset;
+				
 
 //			String queryString = "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n"
 //					+ "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> \n"
@@ -88,9 +90,9 @@ public class AuthorFetcher {
 //					+ "FILTER langMatches( lang(?sourcename), \"en\" ) . \n"
 //					+ "FILTER langMatches( lang(?targetname), \"en\" )" + "} LIMIT 1000 OFFSET " + currentOffset;
 
-			LOG.debug("Querying: {}", queryString);
-
-			Query query = QueryFactory.create(queryString);
+			LOG.debug("Querying: {}", influenceQuery);
+			System.out.println(influenceQuery);
+			Query query = QueryFactory.create(influenceQuery);
 			int resultCounter = 0;
 			try (QueryExecution qexec = QueryExecutionFactory.sparqlService(DBPEDIA_SPARQL_ENDPOINT, query)) {
 				ResultSet results = qexec.execSelect();
@@ -101,9 +103,10 @@ public class AuthorFetcher {
 					QuerySolution sol = results.next();
 //					String fromUri = sol.getResource("sourceuri").getURI();
 					String fromUri = sol.getResource("P").getURI();
-
+//					String fromUri = sol.getResource("writer").getURI();
 //					String toUri = sol.getResource("targeturi").getURI();
 					String toUri = sol.getResource("Q").getURI();
+//					String toUri = sol.getLiteral("deathDate").getLexicalForm();
 //					String from = sol.getLiteral("sourcename").getLexicalForm();
 //					String to = sol.getLiteral("targetname").getLexicalForm();
 //					graph.addArtistIfNotExists(fromUri, from);
@@ -124,6 +127,10 @@ public class AuthorFetcher {
 			}
 		}
 	}
+	
+	
+	
+	
 
 	private void enrichNodeInformation(AuthorGraph graph) {
 		for (Author a : graph.getArtists()){
@@ -148,28 +155,28 @@ public class AuthorFetcher {
 				while (it.hasNext()) {
 					String key = it.next();
 					switch (key) {
-					case "yearsActive":
+					case "deathDate":
 						Literal activeYears = sol.getLiteral(key);
-						extractActiveYears(artist, activeYears);
+						extractDeathDate(artist, activeYears);
 						break;
 					case "birthdate":
 						Literal birthdate = sol.getLiteral(key);
 						extractBirthdate(artist, birthdate);
 						break;
-
-					case "genre":
-						Resource genre = sol.getResource(key);
-						genres.add(genre.getLocalName());
-						break;
-
-					case "subject":
-						Resource subject = sol.getResource(key);
-						subjects.add(subject.getLocalName());
-						break;
-
-					case "filmsubject":
-						artist.setIsFilmActor(true);
-						break;
+//
+//					case "genre":
+//						Resource genre = sol.getResource(key);
+//						genres.add(genre.getLocalName());
+//						break;
+//
+//					case "subject":
+//						Resource subject = sol.getResource(key);
+//						subjects.add(subject.getLocalName());
+//						break;
+//
+//					case "filmsubject":
+//						artist.setIsFilmActor(true);
+//						break;
 
 					default:
 						throw new IllegalStateException("Unknown key: " + key);
@@ -178,10 +185,35 @@ public class AuthorFetcher {
 			}
 		}
 
-		extractArtistGenres(artist, genres);
-		extractArtistSex(artist, subjects);
+//		extractArtistGenres(artist, genres);
+//		extractArtistSex(artist, subjects);
 	}
 
+	private void extractDeathDate(Author artist, Literal deathDate) {
+		try {
+		if (deathDate.getDatatype() instanceof XSDDateType) {
+			XSDDateTime time = (XSDDateTime) deathDate.getValue();
+			LocalDate birthDate = LocalDate.of(time.getYears(), time.getMonths(), time.getDays());
+			artist.setDeathDate(birthDate);
+		} else if (XSDDatatype.XSDgYear.equals(deathDate.getDatatype())) {
+			int year = Integer.parseInt(deathDate.getValue().toString());
+			artist.setDeathDate(LocalDate.of(year, 1, 1));
+		
+		} else if (deathDate.getDatatype() instanceof XSDYearType) {
+			LocalDate birthDate = LocalDate.parse(deathDate.getLexicalForm(), ACTIVE_YEAR_FORMATTER);
+			artist.setDeathDate(LocalDate.of(birthDate.getYear(), 1, 1));
+		}
+		else {
+			LOG.error("Unknown birthdate type: " + deathDate.getDatatype());
+		}
+		} catch (DateTimeParseException ex) {
+			LOG.warn("Could not extract time from: "+deathDate);
+		} catch (DatatypeFormatException ex){
+			LOG.warn("Could not extract time from: "+deathDate);
+		}
+	}
+	
+	
 	private void extractBirthdate(Author artist, Literal birthdate) {
 		try {
 		if (birthdate.getDatatype() instanceof XSDDateType) {
@@ -201,87 +233,58 @@ public class AuthorFetcher {
 		}
 		} catch (DateTimeParseException ex) {
 			LOG.warn("Could not extract time from: "+birthdate);
+		} catch (DatatypeFormatException ex){
+			LOG.warn("Could not extract time from: "+birthdate);
 		}
 	}
 
-	private void extractActiveYears(Author artist, Literal years) {
-		int year =-1;
-			if (XSDDatatype.XSDgYear.equals(years.getDatatype())){
-				year = Integer.parseInt(years.getValue().toString());
-			} else {
-				LOG.warn("Could not extract time datatype: "+years);
-			}
-		if (year > -1){
-			artist.setActiveYears(LocalDate.now().getYear() - year);
-		}
-	}
+//	private void extractActiveYears(Author artist, Literal years) {
+//		int year =-1;
+//			if (XSDDatatype.XSDgYear.equals(years.getDatatype())){
+//				year = Integer.parseInt(years.getValue().toString());
+//			} else {
+//				LOG.warn("Could not extract time datatype: "+years);
+//			}
+//		if (year > -1){
+//			artist.setActiveYears(LocalDate.now().getYear() - year);
+//		}
+//	}
 
-	private void extractArtistGenres(Author artist, Set<String> genres) {
-		// Main music genres from:
-		// https://en.wikipedia.org/wiki/List_of_popular_music_genres
+//
+//
+//	private void extractArtistSex(Author artist, Set<String> subjects) {
+//		int maleCounter = 0;
+//		int femaleCounter = 0;
+//		for (String subject : subjects) {
+//			if (subject.contains("male")) {
+//				++maleCounter;
+//			}
+//			if (subject.contains("female")) {
+//				++femaleCounter;
+//			}
+//		}
+//		if (femaleCounter > 0) {
+//			artist.setSex("female");
+//		} else if (maleCounter > 0) {
+//			artist.setSex("male");
+//		} else {
+//			LOG.debug("No sex found for: " + artist);
+//		}
+//	}
 
-		for (String genre : genres) {
-			String lowerCase = genre.toLowerCase();
-			if (isBlues(lowerCase)) {
-				artist.addGenre("Blues");
-			} else if (isCountry(lowerCase)) {
-				artist.addGenre("Country");
-			} else if (isElectronic(lowerCase)) {
-				artist.addGenre("Electronic");
-			} else if (isFolk(lowerCase)) {
-				artist.addGenre("Folk");
-			} else if (isHipHop(lowerCase)) {
-				artist.addGenre("Hip Hop");
-			} else if (isJazz(lowerCase)) {
-				artist.addGenre("Jazz");
-			} else if (isLatin(lowerCase)) {
-				artist.addGenre("Latin");
-			} else if (isPop(lowerCase)) {
-				artist.addGenre("Pop");
-			} else if (isRock(lowerCase)) {
-				artist.addGenre("Rock");
-			} else if (isSoul(lowerCase)) {
-				artist.addGenre("Soul");
-			} else {
-				LOG.debug("Could not find matching genre for: " + genre);
-			}
-		}
-
-	}
-
-	private void extractArtistSex(Author artist, Set<String> subjects) {
-		int maleCounter = 0;
-		int femaleCounter = 0;
-		for (String subject : subjects) {
-			if (subject.contains("male")) {
-				++maleCounter;
-			}
-			if (subject.contains("female")) {
-				++femaleCounter;
-			}
-		}
-		if (femaleCounter > 0) {
-			artist.setSex("female");
-		} else if (maleCounter > 0) {
-			artist.setSex("male");
-		} else {
-			LOG.debug("No sex found for: " + artist);
-		}
-	}
-
-	private String buildActorQuery(Author artist) {
-		String artistUri = artist.getUri();
-		String queryString = "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n"
-				+ "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> \n"
-				+ "PREFIX dbpedia-owl: <http://dbpedia.org/ontology/> \n" + "SELECT * \n" + "WHERE { " + "{<"
-				+ artistUri + "> dbpedia-owl:activeYearsStartYear ?yearsActive} \n UNION \n" + "{<" + artistUri
-				+ "> dbpedia-owl:birthDate ?birthdate} \n UNION \n" + "{<" + artistUri
-				+ "> dbpedia-owl:genre ?genre} \n UNION \n" + "{<" + artistUri
-				+ "> <http://purl.org/dc/terms/subject> ?subject} \n UNION \n" + "{<" + artistUri
-				+ "> a ?filmsubject . \n"
-				+ "?filmsubject rdfs:subClassOf <http://dbpedia.org/class/yago/Actor109765278>" + "}}";
-
-		LOG.debug("Querying: {}", queryString);
-		return queryString;
+	private String buildActorQuery(Author author) {
+		String authorUri = author.getUri();
+		
+		String query = "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n"
+				 + "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> \n"
+				 + "PREFIX dbpedia-owl: <http://dbpedia.org/ontology/> \n" +
+				 "select * where { \n"+
+				 "{<"+ authorUri+"> <http://dbpedia.org/ontology/deathDate> ?deathDate } \n"+
+				 "UNION \n"+
+				 "{<" + authorUri+ "> dbpedia-owl:birthDate ?birthdate}"+
+				 "}";
+		
+		LOG.debug("Querying: {}", query);
+		return query;
 	}
 }
