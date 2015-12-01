@@ -1,6 +1,7 @@
 package ch.fhnw.sna.examples.dbpedia.model;
 
 import java.time.LocalDate;
+import java.util.LinkedList;
 import java.util.Set;
 
 import com.google.common.base.Joiner;
@@ -9,13 +10,15 @@ import com.google.common.collect.Sets;
 public class Author {
 
 	private final String uri;
+	private Set<String> influencedBy = Sets.newHashSet();
+	private Set<String> influenced = Sets.newHashSet();
 	private String label;
-	private int activeYears = 0;
-	private LocalDate birthdate = null;
-	private boolean isFilmActor = false;
-	private String sex = "unknown";
+	private LocalDate birthYear = null;
+	private LocalDate deathYear = null;
+	private Set <String> relatives = Sets.newHashSet();
+	private String spouse;
 	private Set<String> genres = Sets.newHashSet();
-	private LocalDate deathDate;
+	
 
 	public Author(String uri) {
 		this.uri = uri;
@@ -60,40 +63,17 @@ public class Author {
 		return uri;
 	}
 
-	public void setActiveYears(int activeYears) {
-		this.activeYears = activeYears;
-	}
 
-	public void setBirthdate(LocalDate birthdate) {
-		this.birthdate = birthdate;
-	}
-
-	public void setIsFilmActor(boolean isFilmActor) {
-		this.isFilmActor = isFilmActor;
-	}
-
-	public void setSex(String sex) {
-		this.sex = sex;
+	public void setbirthYear(LocalDate birthYear) {
+		this.birthYear = birthYear;
 	}
 
 	public void addGenre(String genre) {
 		genres.add(genre);
 	}
 
-	public String getSex() {
-		return sex;
-	}
-
-	public int getActiveYears() {
-		return activeYears;
-	}
-
-	public LocalDate getBirthDate() {
-		return birthdate;
-	}
-
-	public boolean isFilmActor() {
-		return isFilmActor;
+	public LocalDate getbirthYear() {
+		return birthYear;
 	}
 
 	public String getGenres() {
@@ -104,12 +84,44 @@ public class Author {
 		return label;
 	}
 
-	public void setDeathDate(LocalDate deathDate) {
-		this.deathDate= deathDate;
+	public String getInfluencedBy() {
+		return Joiner.on(';').join(influencedBy);
 	}
-	
-	public LocalDate getDeathDate(){
-		return deathDate;
+
+	public void addInfluencedBy(String influencedBy) {
+		this.influencedBy.add(influencedBy);
+	}
+
+	public String getInfluenced() {
+		return Joiner.on(';').join(influenced);
+	}
+
+	public void addInfluenced(String influenced) {
+		this.influenced.add(influenced);
+	}
+
+	public LocalDate getDeathYear() {
+		return deathYear;
+	}
+
+	public void setDeathYear(LocalDate deathYear) {
+		this.deathYear = deathYear;
+	}
+
+	public String getRelatives() {
+		return Joiner.on(';').join(relatives);
+	}
+
+	public void addRelatives(String relatives) {
+		this.relatives.add(relatives);
+	}
+
+	public String getSpouse() {
+		return spouse;
+	}
+
+	public void setSpouse(String spouse) {
+		this.spouse = spouse;
 	}
 
 }

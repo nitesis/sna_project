@@ -52,7 +52,13 @@ public class AuthorGephiExport {
 	Attribute attSex = attrList.createAttribute(AttributeType.STRING, "sex");
 	Attribute attGenres = attrList.createAttribute(AttributeType.LISTSTRING,
 			"genres");
+	Attribute attInfluencedBy = attrList.createAttribute(AttributeType.LISTSTRING, "influencedBy");
+	Attribute attInfluenced = attrList.createAttribute(AttributeType.LISTSTRING, "influenced");
+	Attribute attRelatives = attrList.createAttribute(AttributeType.LISTSTRING, "relatives");
+	Attribute attSpouse = attrList.createAttribute(AttributeType.STRING, "spouse");
 
+
+	
 	public AuthorGephiExport(String outputFile) {
 		this.OUTPUT_FILE = outputFile;
 	}
@@ -102,23 +108,36 @@ public class AuthorGephiExport {
 
 	private Node createSingleNode(Graph graph, Author author) {
 		Node node = graph.createNode(author.getUri()).setLabel(author.getLabel());
-		node.getAttributeValues().addValue(attSex, author.getSex());
-		if (author.getActiveYears() != 0) {
-			node.getAttributeValues().addValue(attActiveYears,
-					String.valueOf(author.getActiveYears()));
-		}
-		if (author.getBirthDate() != null) {
+		
+		if (author.getbirthYear() != null) {
 			node.getAttributeValues().addValue(attAge,
-					String.valueOf(LocalDate.now().getYear() - author.getBirthDate().getYear()));
+					String.valueOf(LocalDate.now().getYear() - author.getbirthYear().getYear()));
 		}
 		
-		if (author.getDeathDate() != null) {
-			node.getAttributeValues().addValue(attDeath, String.valueOf(author.getDeathDate().getYear()));
+		if (author.getDeathYear() != null) {
+			node.getAttributeValues().addValue(attDeath, String.valueOf(author.getDeathYear().getYear()));
 		}
 		
-		node.getAttributeValues().addValue(attFilmActor,
-				String.valueOf(author.isFilmActor()));
-		node.getAttributeValues().addValue(attGenres, author.getGenres());
+		if (author.getGenres() != null) {
+			node.getAttributeValues().addValue(attGenres, author.getGenres());
+		}
+		
+		if (author.getInfluencedBy() != null ) {
+			node.getAttributeValues().addValue(attInfluencedBy, author.getInfluencedBy());
+		}
+		
+		if (author.getInfluenced() != null ) {
+			node.getAttributeValues().addValue(attInfluenced, author.getInfluenced());
+		}
+		
+		if (author.getRelatives() != null ) {
+			node.getAttributeValues().addValue(attRelatives, author.getRelatives());
+		}
+		
+		if (author.getSpouse() != null ) {
+			node.getAttributeValues().addValue(attSpouse, author.getSpouse());
+		}
+		
 		return node;
 	}
 
