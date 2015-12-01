@@ -260,8 +260,15 @@ public class AuthorFetcher {
 				 "select * where { \n"+
 				 "{<"+ authorUri+"> <http://dbpedia.org/ontology/deathDate> ?deathDate } \n"+
 				 "UNION \n"+
-				 "{<" + authorUri+ "> dbpedia-owl:birthDate ?birthdate}"+
+				 "{<" + authorUri+ "> dbpedia-owl:birthDate ?birthdate} \n"+
+				 "UNION \n"+
+				 "{<" + authorUri+ "> dbpedia-owl:spouse ?spouse}\n"+
+				 "UNION \n"+
+				 "{<" + authorUri+ "> dbpedia-owl:relative ?relative}\n"+
+				 "UNION \n"+
+				 "{<" + authorUri+ "> dbpedia-owl:relative ?relative}"+
 				 "}";
+		
 		
 		LOG.debug("Querying: {}", query);
 		return query;
