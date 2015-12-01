@@ -43,13 +43,9 @@ public class AuthorGephiExport {
 	// Node attributes
 	AttributeList attrList = new AttributeListImpl(AttributeClass.NODE);
 
-	Attribute attActiveYears = attrList.createAttribute(AttributeType.INTEGER,
-			"active_years");
+
 	Attribute attAge = attrList.createAttribute(AttributeType.INTEGER, "age");
 	Attribute attDeath = attrList.createAttribute(AttributeType.INTEGER, "deathyear");
-	Attribute attFilmActor = attrList.createAttribute(AttributeType.BOOLEAN,
-			"isFilmActor");
-	Attribute attSex = attrList.createAttribute(AttributeType.STRING, "sex");
 	Attribute attGenres = attrList.createAttribute(AttributeType.LISTSTRING,
 			"genres");
 	Attribute attInfluencedBy = attrList.createAttribute(AttributeType.LISTSTRING, "influencedBy");
@@ -109,7 +105,7 @@ public class AuthorGephiExport {
 	private Node createSingleNode(Graph graph, Author author) {
 		Node node = graph.createNode(author.getUri()).setLabel(author.getLabel());
 		
-		if (author.getbirthYear() != null) {
+		if (author.getDeathYear() == null) {
 			node.getAttributeValues().addValue(attAge,
 					String.valueOf(LocalDate.now().getYear() - author.getbirthYear().getYear()));
 		}
