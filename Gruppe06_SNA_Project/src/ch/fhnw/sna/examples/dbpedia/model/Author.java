@@ -1,7 +1,6 @@
 package ch.fhnw.sna.examples.dbpedia.model;
 
 import java.time.LocalDate;
-import java.util.LinkedList;
 import java.util.Set;
 
 import com.google.common.base.Joiner;
