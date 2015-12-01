@@ -91,9 +91,9 @@ public class AuthorGephiExport {
 
 	private Map<String, Node> createNodes(AuthorGraph artists, Graph graph) {
 		Map<String, Node> nodeMap = new HashMap<>(
-				artists.getArtists().size() * 2);
+				artists.getAuthors().size() * 2);
 
-		for (Author artist : artists.getArtists()) {
+		for (Author artist : artists.getAuthors()) {
 			if (!nodeMap.containsKey(artist.getUri())) {
 				nodeMap.put(artist.getUri(), createSingleNode(graph, artist));
 			}

@@ -9,11 +9,11 @@ import com.google.common.collect.Sets;
 
 public class AuthorGraph {
 
-	private Map<String, Author> uriToArtist = Maps.newHashMap();
+	private Map<String, Author> uriAuthor = Maps.newHashMap();
 	private Map<String, Set<String>> associations = Maps.newHashMap();
 
-	public void addArtist(Author artist) {
-		uriToArtist.put(artist.getUri(), artist);
+	public void addAuthor(Author author) {
+		uriAuthor.put(author.getUri(), author);
 	}
 
 	public void addAssociation(String fromUri, String toUri) {
@@ -29,17 +29,17 @@ public class AuthorGraph {
 		return associations;
 	}
 
-	public boolean containsArtist(String uri) {
-		return uriToArtist.containsKey(uri);
+	public boolean containsAuthor(String uri) {
+		return uriAuthor.containsKey(uri);
 	}
 
-	public Collection<Author> getArtists() {
-		return uriToArtist.values();
+	public Collection<Author> getAuthors() {
+		return uriAuthor.values();
 	}
 
-	public void addArtistIfNotExists(String uri, String label) {
-		if (!uriToArtist.containsKey(uri)){
-			uriToArtist.put(uri, new Author(uri, label));
+	public void addAuthorIfNotExists(String uri, String label) {
+		if (!uriAuthor.containsKey(uri)){
+			uriAuthor.put(uri, new Author(uri, label));
 		}
 		
 	}

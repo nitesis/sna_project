@@ -52,9 +52,9 @@ public class AuthorFetcher {
 
 	public AuthorGraph fetch() {
 		AuthorGraph graph = new AuthorGraph();
-		LOG.info("Start fetching Music Artist Network");
+		LOG.info("Start fetching Author Network");
 		fetchAssociations(graph);
-		LOG.info("Fiinished fetching Music Artist Network");
+		LOG.info("Finished fetching Author Network");
 		LOG.info("Start fetching node attributs");
 		enrichNodeInformation(graph);
 		LOG.info("Finished fetching node attributes");
@@ -64,7 +64,6 @@ public class AuthorFetcher {
 	private void fetchAssociations(AuthorGraph graph) {
 		final int LIMIT = Integer.MAX_VALUE; // Means no limit
 		boolean hasMoreResults = true;
-		//Was ist das?
 		int currentOffset = 0;
 		int fetchedTotal = 0;
 		while (hasMoreResults && fetchedTotal < LIMIT) {
@@ -78,18 +77,6 @@ public class AuthorFetcher {
 					 "} LIMIT 1000 OFFSET "+ currentOffset;
 				
 
-//			String queryString = "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n"
-//					+ "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> \n"
-//					+ "PREFIX dbpedia-owl: <http://dbpedia.org/ontology/> \n" +
-//
-//			"SELECT ?sourcename ?targetname ?sourceuri ?targeturi \n" + "WHERE { "
-//					+ "?sourceuri a <http://dbpedia.org/ontology/MusicalArtist>."
-//					+ "?targeturi a dbpedia-owl:MusicalArtist ."
-//					+ "?sourceuri dbpedia-owl:associatedMusicalArtist	?targeturi."
-//					+ "?sourceuri rdfs:label ?sourcename ." + "?targeturi rdfs:label ?targetname ."
-//					+ "FILTER langMatches( lang(?sourcename), \"en\" ) . \n"
-//					+ "FILTER langMatches( lang(?targetname), \"en\" )" + "} LIMIT 1000 OFFSET " + currentOffset;
-
 			LOG.debug("Querying: {}", influenceQuery);
 			System.out.println(influenceQuery);
 			Query query = QueryFactory.create(influenceQuery);
@@ -101,18 +88,10 @@ public class AuthorFetcher {
 					++resultCounter;
 					try{
 					QuerySolution sol = results.next();
-//					String fromUri = sol.getResource("sourceuri").getURI();
 					String fromUri = sol.getResource("P").getURI();
-//					String fromUri = sol.getResource("writer").getURI();
-//					String toUri = sol.getResource("targeturi").getURI();
 					String toUri = sol.getResource("Q").getURI();
-//					String toUri = sol.getLiteral("deathDate").getLexicalForm();
-//					String from = sol.getLiteral("sourcename").getLexicalForm();
-//					String to = sol.getLiteral("targetname").getLexicalForm();
-//					graph.addArtistIfNotExists(fromUri, from);
-//					graph.addArtistIfNotExists(toUri, to);
-					graph.addArtistIfNotExists(fromUri, fromUri);
-					graph.addArtistIfNotExists(toUri, toUri);
+					graph.addAuthorIfNotExists(fromUri, fromUri);
+					graph.addAuthorIfNotExists(toUri, toUri);
 					graph.addAssociation(fromUri, toUri);
 					}catch(Exception e){
 						LOG.error("Fehler beim sammeln...", e);
@@ -133,14 +112,14 @@ public class AuthorFetcher {
 	
 
 	private void enrichNodeInformation(AuthorGraph graph) {
-		for (Author a : graph.getArtists()){
-			enrichSingleArtist(a);
+		for (Author a : graph.getAuthors()){
+			enrichSingleAuthor(a);
 		}
 	}
 
-	private void enrichSingleArtist(Author artist) {
-		LOG.info("Enrich artist {}", artist.getLabel());
-		String queryString = buildActorQuery(artist);
+	private void enrichSingleAuthor(Author author) {
+		LOG.info("Enrich artist {}", author.getLabel());
+		String queryString = buildActorQuery(author);
 
 		Query query = QueryFactory.create(queryString);
 		Set<String> genres = Sets.newHashSet();
@@ -157,11 +136,11 @@ public class AuthorFetcher {
 					switch (key) {
 					case "deathDate":
 						Literal activeYears = sol.getLiteral(key);
-						extractDeathDate(artist, activeYears);
+						extractDeathDate(author, activeYears);
 						break;
 					case "birthdate":
 						Literal birthdate = sol.getLiteral(key);
-						extractBirthdate(artist, birthdate);
+						extractBirthdate(author, birthdate);
 						break;
 //
 //					case "genre":
@@ -194,14 +173,14 @@ public class AuthorFetcher {
 		if (deathDate.getDatatype() instanceof XSDDateType) {
 			XSDDateTime time = (XSDDateTime) deathDate.getValue();
 			LocalDate birthDate = LocalDate.of(time.getYears(), time.getMonths(), time.getDays());
-			artist.setDeathDate(birthDate);
+			artist.setDeathYear(birthDate);
 		} else if (XSDDatatype.XSDgYear.equals(deathDate.getDatatype())) {
 			int year = Integer.parseInt(deathDate.getValue().toString());
-			artist.setDeathDate(LocalDate.of(year, 1, 1));
+			artist.setDeathYear(LocalDate.of(year, 1, 1));
 		
 		} else if (deathDate.getDatatype() instanceof XSDYearType) {
 			LocalDate birthDate = LocalDate.parse(deathDate.getLexicalForm(), ACTIVE_YEAR_FORMATTER);
-			artist.setDeathDate(LocalDate.of(birthDate.getYear(), 1, 1));
+			artist.setDeathYear(LocalDate.of(birthDate.getYear(), 1, 1));
 		}
 		else {
 			LOG.error("Unknown birthdate type: " + deathDate.getDatatype());
@@ -219,14 +198,14 @@ public class AuthorFetcher {
 		if (birthdate.getDatatype() instanceof XSDDateType) {
 			XSDDateTime time = (XSDDateTime) birthdate.getValue();
 			LocalDate birthDate = LocalDate.of(time.getYears(), time.getMonths(), time.getDays());
-			artist.setBirthdate(birthDate);
+			artist.setbirthYear(birthDate);
 		} else if (XSDDatatype.XSDgYear.equals(birthdate.getDatatype())) {
 			int year = Integer.parseInt(birthdate.getValue().toString());
-			artist.setBirthdate(LocalDate.of(year, 1, 1));
+			artist.setbirthYear(LocalDate.of(year, 1, 1));
 		
 		} else if (birthdate.getDatatype() instanceof XSDYearType) {
 			LocalDate birthDate = LocalDate.parse(birthdate.getLexicalForm(), ACTIVE_YEAR_FORMATTER);
-			artist.setBirthdate(LocalDate.of(birthDate.getYear(), 1, 1));
+			artist.setbirthYear(LocalDate.of(birthDate.getYear(), 1, 1));
 		}
 		else {
 			LOG.error("Unknown birthdate type: " + birthdate.getDatatype());
