@@ -14,6 +14,7 @@ package ch.fhnw.sna.examples.dbpedia;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -122,8 +123,8 @@ public class AuthorFetcher {
 		String queryString = buildActorQuery(author);
 
 		Query query = QueryFactory.create(queryString);
-		Set<String> genres = Sets.newHashSet();
-		Set<String> subjects = Sets.newHashSet();
+		Set<String> relatives = Sets.newHashSet();
+
 
 		try (QueryExecution qexec = QueryExecutionFactory.sparqlService(DBPEDIA_SPARQL_ENDPOINT, query)) {
 
@@ -142,19 +143,15 @@ public class AuthorFetcher {
 						Literal birthdate = sol.getLiteral(key);
 						extractBirthdate(author, birthdate);
 						break;
-//
-//					case "genre":
-//						Resource genre = sol.getResource(key);
-//						genres.add(genre.getLocalName());
-//						break;
-//
-//					case "subject":
-//						Resource subject = sol.getResource(key);
-//						subjects.add(subject.getLocalName());
-//						break;
-//
-//					case "filmsubject":
-//						artist.setIsFilmActor(true);
+
+					case "relative":
+						Resource relative = sol.getResource(key);
+						relatives.add(relative.getLocalName());
+						break;
+
+//					case "spouse":
+//						Resource spouse = sol.getResource(key);
+//						author.setSpouse(spouse);
 //						break;
 
 					default:
@@ -262,8 +259,8 @@ public class AuthorFetcher {
 				 "UNION \n"+
 				 "{<" + authorUri+ "> dbpedia-owl:birthDate ?birthdate} \n"+
 				 "UNION \n"+
-				 "{<" + authorUri+ "> dbpedia-owl:spouse ?spouse}\n"+
-				 "UNION \n"+
+//				 "{<" + authorUri+ "> dbpedia-owl:spouse ?spouse}\n"+
+//				 "UNION \n"+
 				 "{<" + authorUri+ "> dbpedia-owl:relative ?relative}\n"+
 				 "UNION \n"+
 				 "{<" + authorUri+ "> dbpedia-owl:relative ?relative}"+

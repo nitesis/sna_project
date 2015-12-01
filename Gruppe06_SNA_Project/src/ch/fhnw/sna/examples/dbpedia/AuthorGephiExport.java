@@ -105,10 +105,10 @@ public class AuthorGephiExport {
 	private Node createSingleNode(Graph graph, Author author) {
 		Node node = graph.createNode(author.getUri()).setLabel(author.getLabel());
 		
-		if (author.getDeathYear() == null) {
-			node.getAttributeValues().addValue(attAge,
-					String.valueOf(LocalDate.now().getYear() - author.getbirthYear().getYear()));
-		}
+//		if (author.getDeathYear() == null) {
+//			node.getAttributeValues().addValue(attAge,
+//					String.valueOf(LocalDate.now().getYear() - author.getbirthYear().getYear()));
+//		}
 		
 		if (author.getDeathYear() != null) {
 			node.getAttributeValues().addValue(attDeath, String.valueOf(author.getDeathYear().getYear()));

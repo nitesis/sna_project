@@ -14,7 +14,7 @@ public class Author {
 	private String label;
 	private LocalDate birthYear = null;
 	private LocalDate deathYear = null;
-	private Set <String> relatives = Sets.newHashSet();
+	private Set <String> relative = Sets.newHashSet();
 	private String spouse;
 	private Set<String> genres = Sets.newHashSet();
 	
@@ -108,11 +108,11 @@ public class Author {
 	}
 
 	public String getRelatives() {
-		return Joiner.on(';').join(relatives);
+		return Joiner.on(';').join(relative);
 	}
 
 	public void addRelatives(String relatives) {
-		this.relatives.add(relatives);
+		this.relative.add(relatives);
 	}
 
 	public String getSpouse() {
