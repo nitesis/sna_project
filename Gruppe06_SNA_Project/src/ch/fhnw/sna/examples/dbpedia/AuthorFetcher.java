@@ -161,8 +161,6 @@ public class AuthorFetcher {
 			}
 		}
 
-//		extractArtistGenres(artist, genres);
-//		extractArtistSex(artist, subjects);
 	}
 
 	private void extractDeathDate(Author artist, Literal deathDate) {
