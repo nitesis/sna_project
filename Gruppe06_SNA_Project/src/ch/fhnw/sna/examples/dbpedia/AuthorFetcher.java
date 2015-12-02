@@ -73,8 +73,15 @@ public class AuthorFetcher {
 					 + "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> \n"
 					 + "PREFIX dbpedia-owl: <http://dbpedia.org/ontology/> \n" +
 					 "select ?P ?Q where {"+
-					 "?P <http://dbpedia.org/property/influences> ?Q."+
-					 "?P <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://dbpedia.org/class/yago/Scriptwriter110564905>"+
+					 "{?Q <http://dbpedia.org/property/influencedBy> ?P."+
+					 "?P <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://dbpedia.org/class/yago/Writer110794014>."+
+					 "?Q <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://dbpedia.org/class/yago/Writer110794014>}"+
+					 "UNION \n"+
+					 "{?P <http://dbpedia.org/property/influenced> ?Q."+
+					 "?P <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://dbpedia.org/class/yago/Writer110794014>."+
+					 "?Q <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://dbpedia.org/class/yago/Writer110794014>}"+
+
+					 
 					 "} LIMIT 1000 OFFSET "+ currentOffset;
 				
 
@@ -149,10 +156,10 @@ public class AuthorFetcher {
 						relatives.add(relative.getLocalName());
 						break;
 
-//					case "spouse":
-//						Resource spouse = sol.getResource(key);
-//						author.setSpouse(spouse);
-//						break;
+					case "spouse":
+						Resource spouse = sol.getResource(key);
+						author.setSpouse(spouse.getLocalName());
+						break;
 
 					default:
 						throw new IllegalStateException("Unknown key: " + key);
@@ -257,8 +264,9 @@ public class AuthorFetcher {
 				 "UNION \n"+
 				 "{<" + authorUri+ "> dbpedia-owl:birthDate ?birthdate} \n"+
 				 "UNION \n"+
-//				 "{<" + authorUri+ "> dbpedia-owl:spouse ?spouse}\n"+
-//				 "UNION \n"+
+				 "{<" + authorUri+ "> dbpedia-owl:spouse ?spouse.\n"
+				 		+ "?spouse <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://dbpedia.org/class/yago/Writer110794014>\n}"+
+				 "UNION \n"+
 				 "{<" + authorUri+ "> dbpedia-owl:relative ?relative}\n"+
 				 "UNION \n"+
 				 "{<" + authorUri+ "> dbpedia-owl:relative ?relative}"+
